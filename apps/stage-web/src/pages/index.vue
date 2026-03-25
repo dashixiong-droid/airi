@@ -23,6 +23,8 @@ import { breakpointsTailwind, useBreakpoints, useMouse } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue'
 
+import { useBridgePoll } from '../composables/bridge-poll'
+
 const paused = ref(false)
 
 function handleSettingsOpen(open: boolean) {
@@ -40,6 +42,11 @@ const backgroundSurface = useTemplateRef<InstanceType<typeof BackgroundProvider>
 
 const { syncBackgroundTheme } = useBackgroundThemeColor({ backgroundSurface, selectedOption, sampledColor })
 onMounted(() => syncBackgroundTheme())
+
+// Bridge: poll local ai_vtuber_local for motion/speak/state events
+const bridge = useBridgePoll()
+onMounted(() => bridge.start())
+onUnmounted(() => bridge.stop())
 
 // Audio + transcription pipeline (mirrors stage-tamagotchi)
 const settingsAudioDeviceStore = useSettingsAudioDevice()
